@@ -3,24 +3,23 @@ close all;
 cvx_clear;
 
 A_point = [-10; 10];
-B_point = [10; -15];
+B_point = [-15; -15];
 
-x = [-20; -20];
+x = [-20; -20]; % wspó³rzêdna pierwsza i druga œrodków okrêgów
 y = [10; 10];
 r = [20; 25];
 d = r(2) - r(1);
 th = 0:pi/50:2*pi;
-% a = -0.25;
 
 cvx_begin quiet
-   variables x1(2) x2(2) a;
-   minimize(norm(A_point - x1) + norm(B_point - x2));
+   variables x1(2,1) x2(2,1) a;
+   minimize(norm(A_point - x1) + norm(x2 - B_point));
    subject to
-        norm(x1 - x) <= r(1);   
-        norm(x2 - x) <= r(2);
-        norm(x2-x1) <= r(2) - r(1);
-%         x1(2) == a * (x1(1) - x(1)) + y(1);
-%         x2(2) == a * (x2(1) - x(1)) + y(1);
+       (x1(1)-x(1))*r(2)==(x2(1)-x(1))*r(1);
+       (x1(2)-y(1))*r(2)==(x2(2)-y(1))*r(1);
+       
+        norm(x1-[x(1);y(1)])<=r(1);% Punkt x1 znajduje sie w wewnetrznym kole
+        norm(x2-[x(1);y(1)])<=r(2);% Punkt x2 znajduje sie w zewnetrznym kole
 cvx_end
 
 figure(1)
