@@ -1,0 +1,174 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Laboratorium #6. Teoria optymalizacji.</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-04-02"><meta name="DC.source" content="linfrac.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Laboratorium #6. Teoria optymalizacji.</h1><!--introduction--><p><i>Adam Gryczka</i></p><p><i>27.03.2017</i></p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Program do minimalizacji funkcji liniowo u&#322;amkowej</a></li><li><a href="#2">Funkcja <i>mesh</i></a></li><li><a href="#3">Funkcja <i>contour</i></a></li><li><a href="#4">Rozwi&#261;zanie problemu jako zadania programowania liniowego</a></li><li><a href="#5">Rozwi&#261;zanie problemu jako zadania quasi-wypuk&#322;ego</a></li></ul></div><h2 id="1">Program do minimalizacji funkcji liniowo u&#322;amkowej</h2><p>Poni&#380;ej zosta&#322;o przedstawione rozwi&#261;zanie problemu minimalizacji funkcji liniowo-u&#322;amkowej. W ca&#322;kowitym rozwi&#261;zaniu zawarto rozwi&#261;zanie zadania minimalizacji na cztery r&oacute;&#380;ne sposoby: graficznie poprzez wyrysowanie w przestrzeni 3D wykresu funkcji za pomoc&#261; funkcji <b>mesh</b>, graficznie poprzez wykorzystanie funkcji <b>contour</b>, analitycznie poprzez przekszta&#322;cenie problemu liniowo-u&#322;amkowego do problemu liniowego oraz analitycznie porzez przekszta&#322;cenie do problemu quasi-wypuk&#322;ego.</p><h2 id="2">Funkcja <i>mesh</i></h2><p>Rozwi&#261;zanie pierwsze: rysujemy funkcj&#281; w przestrzeni 3D:</p><img vspace="5" hspace="5" src="linfrac_01.png" alt=""> <h2 id="3">Funkcja <i>contour</i></h2><p>Rozwi&#261;zanie metod&#261; drug&#261;: narysowanie jedynie konturu funkcji w przestrzeni 2D wraz z uwzgl&#281;dnieniem ogranicze&#324;:</p><img vspace="5" hspace="5" src="linfrac_02.png" alt=""> <h2 id="4">Rozwi&#261;zanie problemu jako zadania programowania liniowego</h2><p>--</p><h2 id="5">Rozwi&#261;zanie problemu jako zadania quasi-wypuk&#322;ego</h2><p>--</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Laboratorium #6. Teoria optymalizacji.
+% _Adam Gryczka_
+%
+% _27.03.2017_
+
+%% Program do minimalizacji funkcji liniowo ułamkowej
+% Poniżej zostało przedstawione rozwiązanie problemu minimalizacji funkcji
+% liniowo-ułamkowej. W całkowitym rozwiązaniu zawarto rozwiązanie zadania
+% minimalizacji na cztery różne sposoby: graficznie poprzez wyrysowanie w
+% przestrzeni 3D wykresu funkcji za pomocą funkcji *mesh*, graficznie poprzez
+% wykorzystanie funkcji *contour*, analitycznie poprzez przekształcenie
+% problemu liniowo-ułamkowego do problemu liniowego oraz analitycznie
+% porzez przekształcenie do problemu quasi-wypukłego.
+
+%% Funkcja _mesh_
+% Rozwiązanie pierwsze: rysujemy funkcję w przestrzeni 3D:
+clear;
+close all;
+cvx_clear;
+
+c = [1; -1];
+d = -1;
+
+e = [1; 1];
+f = -1;
+
+x1_min = 2;
+x1_max = 3;
+
+x2_min = 1.5;
+x2_max = 4.5;
+
+% x1 = 1.1:0.1:5;
+% x2 = x1;
+% x = [x1;x2];
+A = [0 0];
+b = [0.1]';
+[XX, YY] = meshgrid(1.1:0.1:5);
+
+for i = 1:size(XX,1),
+    for j = 1:size(XX,2),
+        xx = XX(i,j); yy = YY(i,j);
+        ZZ(i,j) = (c'*[xx; yy] + d)/(e'*[xx; yy] + f); 
+        ZZZ(i,j) = A*[xx; yy] + b;
+    end;
+end;
+
+cvx_begin quiet
+    variables y z;
+    minimize(sum(c' * y + d * z))
+    subject to
+        A*y <= b * z;        
+        e'*y + f * z == 1;
+        z >= 0;
+%         c'*x + d > 0;
+%         y <= 2;
+        
+%         y == (1/(e'*x + f)) * x;
+%         z == (1/(e'*x + f));
+cvx_end
+w = (1/z) * y;
+figure(1) 
+grid;
+% hold on 
+mesh(XX, YY, ZZ)
+% mesh(XX, YY, ZZZ)
+% hold off
+
+%% Funkcja _contour_
+% Rozwiązanie metodą drugą: narysowanie jedynie konturu funkcji w
+% przestrzeni 2D wraz z uwzględnieniem ograniczeń:
+figure(2) 
+grid;
+hold on 
+contour(XX, YY, ZZ)
+line([x1_min; x1_max], [x2_max; x2_max]);
+line([x1_min; x1_max], [x2_min; x2_min]);
+line([x1_min; x1_min], [x2_min; x2_max]);
+line([x1_max; x1_max], [x2_min; x2_max]);
+
+% A = [ 5 5; 0 0];
+% b = [ 4 10]';
+% 
+% xu = [0.2;1];
+% 
+% wt = A*xu - b;
+% plot(wt)
+% axis([-20 20 -20 20]);
+
+% cvx_begin quiet
+%     variables x(2);
+%     minimize((c'*x + d)/(e'*x + f));
+%     subject to
+%         x(1) <= 2;
+%         x(1) <= 3;
+% cvx_end
+
+%% Rozwiązanie problemu jako zadania programowania liniowego
+% REPLACE_WITH_DASH_DASH
+
+%% Rozwiązanie problemu jako zadania quasi-wypukłego
+% REPLACE_WITH_DASH_DASH
+##### SOURCE END #####
+--></body></html>
