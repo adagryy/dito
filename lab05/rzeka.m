@@ -1,23 +1,23 @@
-%% Laboratorium #3. Teoria optymalizacji.
-% _Adam Gryczka_
-%
-% _20.03.2017_
+	%% Laboratorium #3. Teoria optymalizacji.
+	% _Adam Gryczka_
+	%
+	% _20.03.2017_
 
-%% Program do obliczania optymalnej trasy przejazdu, przy za³o¿eniu koniecznoœci przekroczenia rzeki.
-% Program optymalizuje trasê przejazdu z przekroczeniem rzeki mostem
-% zbudowanym pod k¹tem prostym. Poni¿ej przedstawiono kod programu
-% zaimplementowany w œrodowisku CVX:
+	%% Program do obliczania optymalnej trasy przejazdu, przy zaÂ³oÂ¿eniu koniecznoÅ“ci przekroczenia rzeki.
+	% Program optymalizuje trasÃª przejazdu z przekroczeniem rzeki mostem
+	% zbudowanym pod kÂ¹tem prostym. PoniÂ¿ej przedstawiono kod programu
+	% zaimplementowany w Å“rodowisku CVX:
 clear;
 close all;
 cvx_clear;
 
-% Punkty bêd¹ce pocz¹tkiem i celem trasy
+% Punkty bÃªdÂ¹ce poczÂ¹tkiem i celem trasy
 A_point = [-1; 2];
 B_point = [0; -3];
-% wspó³czynniki b prostych tworz¹cych brzegi rzeki
+% wspÃ³Â³czynniki b prostych tworzÂ¹cych brzegi rzeki
 b1 = 2.5;
 b2 = -1.5;
-% wspó³czynnik kierunkowy prostych tworz¹cych brzegi rzeki
+% wspÃ³Â³czynnik kierunkowy prostych tworzÂ¹cych brzegi rzeki
 a = 2;
 
 cvx_begin quiet
@@ -48,11 +48,11 @@ plot(B_point(1), B_point(2), 'r*');
 plot(x1(1), x1(2), 'b*');
 plot(x2(1), x2(2), 'b*');
 %%
-% Powy¿szy rysunek przedstawia mapê przejazdu pomiêdzy punktami.
+% PowyÂ¿szy rysunek przedstawia mapÃª przejazdu pomiÃªdzy punktami.
 
-%% Realizacja optymalizacji przy za³o¿eniu rzeki o kszta³cie nieliniowym
-% Optymalizacja zak³ada, i¿ rzeka jest w kszta³cie okrêgu. Nale¿y znaleŸæ
-% najkrótsz¹ trasê pomiêdzy dwoma punktami le¿¹cymi po dwóch ró¿nych
+%% Realizacja optymalizacji przy zaÂ³oÂ¿eniu rzeki o ksztaÂ³cie nieliniowym
+% Optymalizacja zakÂ³ada, iÂ¿ rzeka jest w ksztaÂ³cie okrÃªgu. NaleÂ¿y znaleÅ¸Ã¦
+% najkrÃ³tszÂ¹ trasÃª pomiÃªdzy dwoma punktami leÂ¿Â¹cymi po dwÃ³ch rÃ³Â¿nych
 % stronach rzeki.
 A_point = [-10; 10];
 B_point = [10; -15];
@@ -98,18 +98,18 @@ plot([x2(1),B_point(1)], [x2(2), B_point(2)]);
 plot([x1(1), x2(1)], [x1(2), x2(2)]);
 
 axis([-20 20 -20 20]);
-%% *_NIE ZNALAZ£EM SPOSOBU NA ROZWI¥ZANIE_*
+%% *_NIE ZNALAZÂ£EM SPOSOBU NA ROZWIÂ¥ZANIE_*
 %
-% * Nie uda³o mi siê znaleŸæ sposobu na zapisanie ograniczeñ :(*. Próby na
-% wiele sposobów zakoñczy³y siê fiaskiem. Probowa³em wielu podejœæ, które
-% wykorzystuj¹ miêdzy innymi:
-% * znalezienie rodziny prostych przechodz¹cych przez œrodek okrêgu rzeki,
-% oraz zapewnienie ograniczenia, ¿e na tej prostej w odleg³oœci R1 i R2 le¿¹
+% * Nie udaÂ³o mi siÃª znaleÅ¸Ã¦ sposobu na zapisanie ograniczeÃ± :(*. PrÃ³by na
+% wiele sposobÃ³w zakoÃ±czyÂ³y siÃª fiaskiem. ProbowaÂ³em wielu podejÅ“Ã¦, ktÃ³re
+% wykorzystujÂ¹ miÃªdzy innymi:
+% * znalezienie rodziny prostych przechodzÂ¹cych przez Å“rodek okrÃªgu rzeki,
+% oraz zapewnienie ograniczenia, Â¿e na tej prostej w odlegÂ³oÅ“ci R1 i R2 leÂ¿Â¹
 % punkty zawieszenia mostu.
-% * postawienia ograniczenia, ¿e dane punkty le¿¹ na pierwszym i drugim
-% okrêgu wraz z za³o¿eniem, ¿e odleg³oœæ tych dwóch punktów wynosi R2 - R1
-% * próby znalezienia okrêgu, którego œrodek le¿y na w/w prostej
-% (zawieraj¹cej punkty zawieszenia mostu), którego œrodek le¿y w odleg³oœci
-% R1+R2 od œrodka okrêgu wyjœciowego (rysunek).
+% * postawienia ograniczenia, Â¿e dane punkty leÂ¿Â¹ na pierwszym i drugim
+% okrÃªgu wraz z zaÂ³oÂ¿eniem, Â¿e odlegÂ³oÅ“Ã¦ tych dwÃ³ch punktÃ³w wynosi R2 - R1
+% * prÃ³by znalezienia okrÃªgu, ktÃ³rego Å“rodek leÂ¿y na w/w prostej
+% (zawierajÂ¹cej punkty zawieszenia mostu), ktÃ³rego Å“rodek leÂ¿y w odlegÂ³oÅ“ci
+% R1+R2 od Å“rodka okrÃªgu wyjÅ“ciowego (rysunek).
 figure(3)
 plot([x1(1), x2(1)], [x1(2), x2(2)]);
