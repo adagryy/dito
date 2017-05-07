@@ -1,0 +1,211 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Laboratorium #9. Teoria optymalizacji.</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-07"><meta name="DC.source" content="lab09.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Laboratorium #9. Teoria optymalizacji.</h1><!--introduction--><p><i>Adam Gryczka</i></p><p><i>24.04.2017</i></p><!--/introduction--><h2>Spis treści</h2><div><ul><li><a href="#2">Przekszta&#322;cenie do postaci standardowej</a></li><li><a href="#3">Zadanie dualne</a></li></ul></div><p>Poni&#380;szy program s&#322;u&#380;y do znalezienia punktu &#378;r&oacute;d&#322;a d&#378;wi&#281;ku na podstawie danych pochodz&#261;cych z mikrofon&oacute;w rozmieszczonych w terenie.</p><pre class="codeinput">clear <span class="string">all</span>
+
+y1 = [1.8, 2.5];
+y2 = [2.0, 1.7];
+y3 = [1.5, 1.5];
+y4 = [1.5, 2.0];
+y5 = [2.5, 1.5];
+
+y=[y1;y2;y3;y4;y5];
+d = [2.0, 1.24, 0.59, 1.31, 1.44];
+
+[XX, YY] = meshgrid(0.3:0.1:3, .5:0.1:3);
+ZZ = zeros(size(XX));
+ZZZ = zeros(size(XX));
+<span class="keyword">for</span> i = 1:size(XX,1),
+    <span class="keyword">for</span> j = 1:size(XX,2),
+        x = [XX(i,j); YY(i,j)];
+        <span class="keyword">for</span> it = 1 : 5,
+            ZZ(i,j) = ZZ(i,j) + ((norm(x - y(it,:)'))^2 - d(it)^2)^2;
+        <span class="keyword">end</span>;
+    <span class="keyword">end</span>;
+<span class="keyword">end</span>;
+</pre><h2 id="2">Przekszta&#322;cenie do postaci standardowej</h2><p>Po przekszta&#322;ceniu wyj&#347;ciowej postaci problemu do postaci standardowej otrzymujemy nast&#281;puj&#261;ce parametry r&oacute;wnania: <b>x'*A'*A*x-2*b'*A*x+b'*b</b> Subject to      <b>x'*c*x + 2*f'*x = 0</b></p><pre class="codeinput"> A=[ -2*y(1,:) 1
+     -2*y(2,:) 1
+     -2*y(3,:) 1
+     -2*y(4,:) 1
+     -2*y(5,:) 1
+     ];
+
+ B=[ y(1,:)*y(1,:)' - d(1)
+     y(2,:)*y(2,:)' - d(2)
+     y(3,:)*y(3,:)' - d(3)
+     y(4,:)*y(4,:)' - d(4)
+     y(5,:)*y(5,:)' - d(5)];
+
+c=[ 1 0 0
+    0 1 0
+    0 0 0];
+
+f=[0
+   0
+   -0.5];
+</pre><h2 id="3">Zadanie dualne</h2><p>Lemat Shura</p><pre class="codeinput">cvx_begin <span class="string">sdp</span> <span class="string">quiet</span>
+    variables <span class="string">t</span> <span class="string">ni</span>;
+    maximize( -t - ni );
+    subject <span class="string">to</span>
+         [A'*A+ni*c (B'*A-ni*f')'
+          B'*A-ni*f' t          ] &gt;= 0
+cvx_end
+
+xs =  -(A'*A+ni*c)^-1*(B'*A-ni*f')'; <span class="comment">% Argument problemu pierwotnego dla kt&oacute;rego znaleziono minimum</span>
+
+contour(XX, YY, ZZ, 60), grid <span class="string">on</span>;
+hold <span class="string">on</span>
+<span class="keyword">for</span> it = 1 : size(y, 1),
+ plot(y(it, 1), y(it, 2), <span class="string">'r*'</span>);
+<span class="keyword">end</span>
+text(xs(1)+0.05, xs(2),<span class="string">'Pozycja obiektu'</span>)
+plot(xs(1), xs(2), <span class="string">'ks'</span>);<span class="comment">% Pozycja obiektu na wykresie</span>
+</pre><img vspace="5" hspace="5" src="https://redgit.redocean.pl/lab09_01.png" alt=""> <p>Powy&#380;szy rysunek przedstawia pozycj&#281; obiektu wykrytego przez system (punkt optymalny).</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Laboratorium #9. Teoria optymalizacji.
+% _Adam Gryczka_
+%
+% _24.04.2017_
+
+%%
+% Poniższy program służy do znalezienia punktu źródła dźwięku na podstawie
+% danych pochodzących z mikrofonów rozmieszczonych w terenie.
+clear all
+
+y1 = [1.8, 2.5];
+y2 = [2.0, 1.7]; 
+y3 = [1.5, 1.5];
+y4 = [1.5, 2.0];
+y5 = [2.5, 1.5];
+
+y=[y1;y2;y3;y4;y5];
+d = [2.0, 1.24, 0.59, 1.31, 1.44];
+
+[XX, YY] = meshgrid(0.3:0.1:3, .5:0.1:3);
+ZZ = zeros(size(XX));
+ZZZ = zeros(size(XX));
+for i = 1:size(XX,1),
+    for j = 1:size(XX,2),
+        x = [XX(i,j); YY(i,j)];
+        for it = 1 : 5,
+            ZZ(i,j) = ZZ(i,j) + ((norm(x - y(it,:)'))^2 - d(it)^2)^2;
+        end;   
+    end;
+end;
+ %% Przekształcenie do postaci standardowej
+ % Po przekształceniu wyjściowej postaci problemu do postaci standardowej otrzymujemy następujące parametry równania:
+ % *x'*A'*A*x-2*b'*A*x+b'*b*
+ % Subject to
+ %      *x'*c*x + 2*f'*x = 0*
+ A=[ -2*y(1,:) 1
+     -2*y(2,:) 1
+     -2*y(3,:) 1
+     -2*y(4,:) 1
+     -2*y(5,:) 1
+     ];
+
+ B=[ y(1,:)*y(1,:)' - d(1)
+     y(2,:)*y(2,:)' - d(2)
+     y(3,:)*y(3,:)' - d(3)
+     y(4,:)*y(4,:)' - d(4)
+     y(5,:)*y(5,:)' - d(5)];
+
+c=[ 1 0 0
+    0 1 0
+    0 0 0];
+
+f=[0
+   0
+   -0.5];
+
+%% Zadanie dualne
+% Lemat Shura
+cvx_begin sdp quiet
+    variables t ni;
+    maximize( -t - ni );
+    subject to
+         [A'*A+ni*c (B'*A-ni*f')'
+          B'*A-ni*f' t          ] >= 0 
+cvx_end
+    
+xs =  -(A'*A+ni*c)^-1*(B'*A-ni*f')'; % Argument problemu pierwotnego dla którego znaleziono minimum
+
+contour(XX, YY, ZZ, 60), grid on;
+hold on
+for it = 1 : size(y, 1),
+ plot(y(it, 1), y(it, 2), 'r*');
+end
+text(xs(1)+0.05, xs(2),'Pozycja obiektu')
+plot(xs(1), xs(2), 'ks');% Pozycja obiektu na wykresie
+
+%% 
+% Powyższy rysunek przedstawia pozycję obiektu wykrytego przez system
+% (punkt optymalny).
+
+##### SOURCE END #####
+--></body></html>
