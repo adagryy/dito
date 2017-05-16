@@ -20,7 +20,7 @@ cvx_begin gp quiet
     subject to 
         2*x + y <= total_len;
 cvx_end
-    
+     
 cvx_begin quiet
     variables logx logy
     maximize(logx + logy)
@@ -282,7 +282,7 @@ end
 %         x/(6*sqrt(x^2+9))-1/8 == 0
 % cvx_end
 % 
-% proba = 4;
+% proba = 11;
 % cvx_gp(proba,1) = x;
 % cvx_gp(proba,2) = NaN;
 % 

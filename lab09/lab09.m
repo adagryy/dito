@@ -58,13 +58,17 @@ f=[0
 % Lemat Shura
 cvx_begin sdp quiet
     variables t ni;
-    maximize( -t - ni );
+    maximize( t );
     subject to
-         [A'*A+ni*c (B'*A-ni*f')'
-          B'*A-ni*f' t          ] >= 0 
+         [(norm(B))^2 - t (A'*B-ni*f)'
+          A'*B-ni*f A'*A+ni*c          ] >= 0 
 cvx_end
     
-xs =  -(A'*A+ni*c)^-1*(B'*A-ni*f')'; % Argument problemu pierwotnego dla którego znaleziono minimum
+M=(A'*A+ni*c);
+k = A'*B-ni*f;
+xs =  -M^-1*k; % Argument problemu pierwotnego dla którego znaleziono minimum
+ps = xs'*xs - t
+ds = k'*M^-1*k+(norm(B))^2
 
 contour(XX, YY, ZZ, 60), grid on;
 hold on
