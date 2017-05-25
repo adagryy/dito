@@ -263,16 +263,15 @@ end
 %         log(2*exp(logx) + exp(logy)) <= log(total_len);
 % cvx_end
 %% Zadanie 10 - NIE DZIA£A!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-% cvx_begin gp quiet
-%     variables x y
-%     minimize sqrt( y^2 - 3*y + 3 )
-% %     minimize( x^2+(y-2)^2 )
-%     subject to 
-%         2*y - 3 == 0;
-% %         y >= x^2+1
-% cvx_end
-% x
-% y
+cvx_begin gp quiet
+    variables x y
+    minimize norm(A - x)
+%     minimize( x^2+(y-2)^2 )
+    subject to 
+        -y + 
+cvx_end
+x
+y
 
 %% Zadanie 11 - NIE DZIA£A!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 % cvx_begin gp quiet

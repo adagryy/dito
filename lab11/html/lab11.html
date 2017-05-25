@@ -1,0 +1,464 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>lab11</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-05-25"><meta name="DC.source" content="lab11.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Spis treści:</h2><div><ul><li><a href="#1">Laboratorium #11. Teoria optymalizacji.</a></li><li><a href="#2">Konkluzje</a></li></ul></div><h2 id="1">Laboratorium #11. Teoria optymalizacji.</h2><p><i>Adam Gryczka</i></p><p><i>15.05.2017</i></p><pre class="codeinput"><span class="comment">% data for power flow problem</span>
+n = 12; <span class="comment">% total number of nodes</span>
+m = 18; <span class="comment">% number of edges (transmission lines)</span>
+k = 4; <span class="comment">% number of generators</span>
+rand(<span class="string">'state'</span>,0);
+Pmax = 1+4*rand(m,1)*1.208; <span class="comment">% transmission line capacities</span>
+<span class="comment">% Pmax(18,1)=0;</span>
+Gmax = [3; 2; 4; 7];  <span class="comment">% maximum generator power</span>
+c    = [4; 8; 5; 3];  <span class="comment">% supply generator costs</span>
+d    = 1+1.5*rand(n-k,1); <span class="comment">% network power demands</span>
+<span class="comment">% graph incidence matrix</span>
+A = [ -1 -1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 ;
+       0  0 -1 -1  0  0  0  0  0  0  0  0  0  0  0  0  0  0 ;
+       0  0  0  0  0  0  0  0  0 -1 -1  0  0  0  0  0  0  1 ;
+       0  0  0  0  0  0 -1  0  0  0  0  0  0  0 -1  0 -1  0 ;
+       1  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0  0  0 ;
+       0  1  1  0 -1  0  1 -1  0  0  0  0  0  0  0  0  0  0 ;
+       0  0  0  1  0  0  0  0 -1  1  0  0  0  0  0  0  0  0 ;
+       0  0  0  0  0  0  0  1  1  0  0  0 -1  0  1  0  0  0 ;
+       0  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0 ;
+       0  0  0  0  0  0  0  0  0  0  0  1  1 -1  0  0  0  0 ;
+       0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  1  0  0 ;
+       0  0  0  0  0  1  0  0  0  0  0  0  0  0  0 -1  1  0 ];
+
+<span class="comment">% the code below is not data for the problem</span>
+<span class="comment">% it is used only to generate the network graph</span>
+
+<span class="comment">% x-y coordinates</span>
+XY = [ <span class="keyword">...</span><span class="comment"> % node x-y coordinates</span>
+ 1.5 5.2;   <span class="comment">% node 1</span>
+ 4.9 5;     <span class="comment">% node 2</span>
+ 6.9 3.5;   <span class="comment">% node 3</span>
+ 1.9 3.5;   <span class="comment">% node 4</span>
+ 0.2 4.4;   <span class="comment">% node 5</span>
+ 3.2 4.8;   <span class="comment">% node 6</span>
+ 5.9 4.5;   <span class="comment">% node 7</span>
+ 3.9 3.6;   <span class="comment">% node 8</span>
+ 5.9 2.5;   <span class="comment">% node 9</span>
+ 3.9 3;     <span class="comment">% node 10</span>
+ 1.4 2.5;   <span class="comment">% node 11</span>
+ 0 3];      <span class="comment">% node 12</span>
+
+<span class="comment">% node adjacency matrix</span>
+Ad = -A*A';
+Ad = Ad - diag(diag(Ad));
+
+epsx = 0.05; epsy = 0.15; <span class="comment">% text placing offset</span>
+
+figure;
+<span class="comment">% connect edges</span>
+gplot(Ad,XY,<span class="string">'-k'</span>); hold <span class="string">on</span>;
+
+<span class="comment">% label generator nodes</span>
+<span class="keyword">for</span> j = 1:k
+    plot(XY(j,1),XY(j,2),<span class="string">'rs'</span>,<span class="keyword">...</span>
+        <span class="string">'MarkerFaceColor'</span>,<span class="string">'r'</span>,<span class="keyword">...</span>
+        <span class="string">'MarkerSize'</span>,12);
+    text(XY(j,1)-eps,XY(j,2)+epsy,int2str(j),<span class="string">'FontSize'</span>,10);
+<span class="keyword">end</span>
+
+<span class="comment">% label regular nodes</span>
+<span class="keyword">for</span> j = k+1:n
+    plot(XY(j,1),XY(j,2),<span class="string">'.k'</span>,<span class="keyword">...</span>
+    <span class="string">'MarkerSize'</span>,15);
+    text(XY(j,1)-eps,XY(j,2)+epsy,int2str(j),<span class="string">'FontSize'</span>,10);
+<span class="keyword">end</span>
+axis <span class="string">off</span>; hold <span class="string">off</span>;
+<span class="comment">% print('-depsc','pwr_net.eps');</span>
+
+<span class="comment">% Podpunkt 1</span>
+
+cvx_begin <span class="string">quiet</span>
+    variables <span class="string">g(4,1)</span> <span class="string">p(m,1)</span> <span class="comment">% ca&#322;kowita moc WSZYSTKICH generator&oacute;w</span>
+    minimize (c'*g) <span class="comment">% koszt generowania mocy</span>
+    subject <span class="string">to</span>
+        g&gt;=0 <span class="comment">% ka&#380;dy generator generuje pr&#261;d (dodatnio) a nie go pobiera (ujemnie)</span>
+        abs(Gmax)&gt;= g <span class="comment">% Ka&#380;dy generator produkuje moc mniejsz&#261; od swojej w&#322;asnej mocy maksymalnej</span>
+        sum(g)==sum(d) <span class="comment">% Suma mocy generowanych jest r&oacute;wna sumie mocy zu&#380;ytych</span>
+        A*p == [-g;d] <span class="comment">% Zbalansowane mocy na ka&#380;dym w&#281;&#378;le</span>
+cvx_end;
+disp(<span class="string">'Podpunkt - koszt optymalny 1:'</span>)
+c'*g
+
+disp(<span class="string">'Macierz koszt&oacute;w generacji:'</span>)
+c
+
+disp(<span class="string">'Macierz mocy generator&oacute;w:'</span>)
+g
+
+disp(<span class="string">'Macierz mocy przep&#322;ywaj&#261;cych przez poszczeg&oacute;lne w&#281;z&#322;y:'</span>)
+p
+
+<span class="comment">% Podpunkt 2</span>
+
+cvx_begin <span class="string">quiet</span>
+    variables <span class="string">p(m,m)</span> <span class="string">g(4,1)</span>
+    minimize (c'*g) <span class="comment">% Koszt generowania mocy</span>
+    subject <span class="string">to</span>
+        g&gt;=0  <span class="comment">% ka&#380;dy generator generuje pr&#261;d (dodatnio) a nie go pobiera</span>
+        Gmax&gt;= g  <span class="comment">% Ka&#380;dy generator produkuje moc mniejsz&#261; od swojej w&#322;asnej mocy maksymalnej</span>
+        sum(g)==sum(d) <span class="comment">% Suma mocy generowanych jest r&oacute;wna sumie mocy zu&#380;ytych</span>
+        <span class="keyword">for</span> i = 1:m
+            p(i,i)==0 <span class="comment">% odci&#281;cie danej magistrali</span>
+            A*p(:,i) == [-g;d] <span class="comment">% Zbalansowane mocy na ka&#380;dym w&#281;&#378;le</span>
+            abs(p(:,i))&lt;=Pmax  <span class="comment">% Odci&#281;cie linii zachowuje wymagany przedzia&#322; mocy</span>
+        <span class="keyword">end</span>
+cvx_end;
+
+disp(<span class="string">'Podpunkt - koszt optymalny 1:'</span>)
+c'*g
+
+disp(<span class="string">'Macierz koszt&oacute;w generacji:'</span>)
+c
+
+disp(<span class="string">'Macierz mocy generator&oacute;w:'</span>)
+g
+
+disp(<span class="string">'Macierz mocy przep&#322;ywaj&#261;cych przez poszczeg&oacute;lne w&#281;z&#322;y:'</span>)
+p
+</pre><pre class="codeoutput">Podpunkt - koszt optymalny 1:
+
+ans =
+
+   44.5952
+
+Macierz koszt&oacute;w generacji:
+
+c =
+
+     4
+     8
+     5
+     3
+
+Macierz mocy generator&oacute;w:
+
+g =
+
+    3.0000
+    0.0000
+    2.3190
+    7.0000
+
+Macierz mocy przep&#322;ywaj&#261;cych przez poszczeg&oacute;lne w&#281;z&#322;y:
+
+p =
+
+    7.3624
+   -4.3624
+   -0.2971
+    0.2971
+    0.0000
+    5.7470
+    7.0000
+    0.0000
+    1.5293
+    2.3190
+   -0.0000
+   -2.2197
+    0.0000
+   -3.2345
+    0.0000
+    4.4429
+   -0.0000
+   -0.0000
+
+Podpunkt - koszt optymalny 1:
+
+ans =
+
+   55.3516
+
+Macierz koszt&oacute;w generacji:
+
+c =
+
+     4
+     8
+     5
+     3
+
+Macierz mocy generator&oacute;w:
+
+g =
+
+    2.1169
+    1.9960
+    3.1488
+    5.0574
+
+Macierz mocy przep&#322;ywaj&#261;cych przez poszczeg&oacute;lne w&#281;z&#322;y:
+
+p =
+
+  Columns 1 through 7
+
+         0    2.1169    1.7233    1.8400    1.6512    1.7770    1.6313
+    2.1169         0    0.3936    0.2769    0.4656    0.3399    0.4856
+    0.5624    0.6177         0    1.9960    0.6401    0.6338    0.9091
+    1.4336    1.3783    1.9960         0    1.3559    1.3622    1.0869
+    1.1937   -0.5577   -0.5304    0.2708         0   -0.1616   -1.0809
+   -0.4217   -0.0563   -0.4226    0.4953    0.0358         0   -1.0650
+    1.0822    1.3508    1.4801    0.8727    1.4127    1.3796         0
+    0.2272    0.1859    0.0637    0.5344    0.1780    0.1745    0.1351
+    1.2327    1.1984    1.6957    0.0646    1.1799    1.1827    0.9597
+    0.8859    0.9070    0.7865    1.1514    0.9108    0.9074    0.9597
+    2.2629    2.2418    2.3623    1.9974    2.2380    2.2414    2.1891
+    0.0431    0.0221    0.1425   -0.2223    0.0182    0.0217   -0.0306
+    0.8427    0.7733    0.9628    0.3660    0.7571    0.7518    0.7594
+   -0.1289   -0.2194    0.0905   -0.8712   -0.2394   -0.2414   -0.2860
+    0.9121    0.9183    0.7327    1.2963    0.9285    0.9239    1.1938
+    1.3373    1.4278    1.1178    2.0795    1.4478    1.4497    1.4944
+    3.0631    2.7882    2.8445    2.8883    2.7161    2.7538    3.8636
+   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+
+  Columns 8 through 14
+
+    1.7723    1.7938    1.7510    1.7986    1.7629    1.7845    1.7478
+    0.3446    0.3231    0.3659    0.3183    0.3540    0.3324    0.3691
+    0.5461    1.2247    0.4638    1.0506    0.6102    0.7432    0.5508
+    1.4500    0.7713    1.5322    0.9454    1.3858    1.2528    1.4452
+   -0.2155   -0.0541   -0.3680   -0.0472   -0.2690   -0.1249   -0.3682
+   -0.0586    0.1243   -0.2324    0.1360   -0.1215    0.0442   -0.2359
+    1.2343    1.1065    1.3388    1.1563    1.2946    1.2659    1.3071
+         0    0.3679    0.1960    0.2319    0.1873    0.1259    0.2548
+    1.2643         0    0.4454    3.0074    1.2281    0.6294    1.2398
+    0.9012    0.3156         0    3.1488    0.9291    0.4633    0.8814
+    2.2476    2.8333    3.1488         0    2.2197    2.6855    2.2674
+    0.0279    0.6135    0.9291   -2.2197         0    0.4657    0.0476
+    0.7281   -0.0308    0.0347    2.6651    0.7964         0    0.9672
+   -0.2589   -0.4321   -0.0510   -0.5695   -0.2184   -0.5491         0
+    0.9930    1.1306    0.9226    0.9551    0.9104    0.7741    1.0019
+    1.4672    1.6404    1.2594    1.7778    1.4267    1.7574    1.2083
+    2.8300    2.8203    2.7960    2.9460    2.8523    3.0174    2.7483
+   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+
+  Columns 15 through 18
+
+    1.7401    1.6603    2.0277    1.7625
+    0.3767    0.4565    0.0892    0.3544
+    0.1981   -0.1843    0.6690    0.6088
+    1.7979    2.1804    1.3270    1.3872
+   -0.4094   -0.9645    1.4579   -0.2745
+   -0.2846   -0.9196    1.8701   -0.1275
+    1.6655    1.5504    3.2057    1.2932
+    0.3093    0.4466    0.1655    0.1905
+    1.5949    1.7352    1.0512    1.2055
+    0.8838    0.6417    0.8111    0.9051
+    2.2650    2.5072    2.3377    2.2437
+    0.0452    0.2874    0.1180    0.0240
+    0.3749    1.9357    1.5391    0.7816
+   -0.5947    1.2083    0.6423   -0.2092
+         0    1.2833    1.8517    0.9150
+    1.8031         0    0.5660    1.4175
+    3.3918    2.2237         0    2.8491
+   -0.0000   -0.0000   -0.0000         0
+
+</pre><img vspace="5" hspace="5" src="https://redgit.redocean.pl/lab11_01.png" alt=""> <h2 id="2">Konkluzje</h2><p>Odci&#281;cie dowolnej linii zwi&#281;ksza og&oacute;lny koszt przesy&#322;u energii pomi&#281;dzy w&#281;z&#322;ami, co jest zgodne ze zdrowym rozs&#261;dkiem. W zadaniu optymalizacji nie zostaj&#261;zaburzone krytyczne warunki dzia&#322;ania sieci, takie jak maksymalna moc generatora, czy maksymalna moc przesy&#322;ana na danej linii. Takie rozwi&#261;zanie pozwala zastosowa&#263; optymalne tryby dzia&#322;ania komponent&oacute;w sieci bez zb&#281;dnego ich przeci&#261;&#380;ania.</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Laboratorium #11. Teoria optymalizacji.
+% _Adam Gryczka_
+%
+% _15.05.2017_
+
+% data for power flow problem
+n = 12; % total number of nodes
+m = 18; % number of edges (transmission lines)
+k = 4; % number of generators
+rand('state',0);
+Pmax = 1+4*rand(m,1)*1.208; % transmission line capacities
+% Pmax(18,1)=0;
+Gmax = [3; 2; 4; 7];  % maximum generator power
+c    = [4; 8; 5; 3];  % supply generator costs
+d    = 1+1.5*rand(n-k,1); % network power demands
+% graph incidence matrix 
+A = [ -1 -1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 ;
+       0  0 -1 -1  0  0  0  0  0  0  0  0  0  0  0  0  0  0 ;
+       0  0  0  0  0  0  0  0  0 -1 -1  0  0  0  0  0  0  1 ;
+       0  0  0  0  0  0 -1  0  0  0  0  0  0  0 -1  0 -1  0 ;
+       1  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0  0  0 ;
+       0  1  1  0 -1  0  1 -1  0  0  0  0  0  0  0  0  0  0 ;
+       0  0  0  1  0  0  0  0 -1  1  0  0  0  0  0  0  0  0 ;
+       0  0  0  0  0  0  0  1  1  0  0  0 -1  0  1  0  0  0 ;
+       0  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0 ;
+       0  0  0  0  0  0  0  0  0  0  0  1  1 -1  0  0  0  0 ;
+       0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  1  0  0 ;
+       0  0  0  0  0  1  0  0  0  0  0  0  0  0  0 -1  1  0 ];
+
+% the code below is not data for the problem
+% it is used only to generate the network graph
+
+% x-y coordinates
+XY = [ ... % node x-y coordinates
+ 1.5 5.2;   % node 1
+ 4.9 5;     % node 2
+ 6.9 3.5;   % node 3
+ 1.9 3.5;   % node 4
+ 0.2 4.4;   % node 5
+ 3.2 4.8;   % node 6
+ 5.9 4.5;   % node 7
+ 3.9 3.6;   % node 8
+ 5.9 2.5;   % node 9
+ 3.9 3;     % node 10
+ 1.4 2.5;   % node 11
+ 0 3];      % node 12
+
+% node adjacency matrix
+Ad = -A*A';
+Ad = Ad - diag(diag(Ad));
+
+epsx = 0.05; epsy = 0.15; % text placing offset 
+
+figure; 
+% connect edges
+gplot(Ad,XY,'-k'); hold on;
+
+% label generator nodes
+for j = 1:k
+    plot(XY(j,1),XY(j,2),'rs',...
+        'MarkerFaceColor','r',...
+        'MarkerSize',12);
+    text(XY(j,1)-eps,XY(j,2)+epsy,int2str(j),'FontSize',10);      
+end
+
+% label regular nodes 
+for j = k+1:n
+    plot(XY(j,1),XY(j,2),'.k',...
+    'MarkerSize',15);
+    text(XY(j,1)-eps,XY(j,2)+epsy,int2str(j),'FontSize',10);
+end
+axis off; hold off;
+% print('-depsc','pwr_net.eps');
+
+% Podpunkt 1
+
+cvx_begin quiet
+    variables g(4,1) p(m,1) % całkowita moc WSZYSTKICH generatorów 
+    minimize (c'*g) % koszt generowania mocy
+    subject to
+        g>=0 % każdy generator generuje prąd (dodatnio) a nie go pobiera (ujemnie)
+        abs(Gmax)>= g % Każdy generator produkuje moc mniejszą od swojej własnej mocy maksymalnej
+        sum(g)==sum(d) % Suma mocy generowanych jest równa sumie mocy zużytych
+        A*p == [-g;d] % Zbalansowane mocy na każdym węźle
+cvx_end;
+disp('Podpunkt - koszt optymalny 1:')
+c'*g
+
+disp('Macierz kosztów generacji:')
+c
+
+disp('Macierz mocy generatorów:')
+g
+
+disp('Macierz mocy przepływających przez poszczególne węzły:')
+p
+
+% Podpunkt 2
+
+cvx_begin quiet
+    variables p(m,m) g(4,1)
+    minimize (c'*g) % Koszt generowania mocy
+    subject to        
+        g>=0  % każdy generator generuje prąd (dodatnio) a nie go pobiera 
+        Gmax>= g  % Każdy generator produkuje moc mniejszą od swojej własnej mocy maksymalnej
+        sum(g)==sum(d) % Suma mocy generowanych jest równa sumie mocy zużytych        
+        for i = 1:m
+            p(i,i)==0 % odcięcie danej magistrali
+            A*p(:,i) == [-g;d] % Zbalansowane mocy na każdym węźle
+            abs(p(:,i))<=Pmax  % Odcięcie linii zachowuje wymagany przedział mocy
+        end
+cvx_end;
+
+disp('Podpunkt - koszt optymalny 1:')
+c'*g
+
+disp('Macierz kosztów generacji:')
+c
+
+disp('Macierz mocy generatorów:')
+g
+
+disp('Macierz mocy przepływających przez poszczególne węzły:')
+p
+
+%% Konkluzje
+% Odcięcie dowolnej linii zwiększa ogólny koszt przesyłu energii pomiędzy
+% węzłami, co jest zgodne ze zdrowym rozsądkiem. W zadaniu optymalizacji
+% nie zostajązaburzone krytyczne warunki działania sieci, takie jak
+% maksymalna moc generatora, czy maksymalna moc przesyłana na danej linii.
+% Takie rozwiązanie pozwala zastosować optymalne tryby działania
+% komponentów sieci bez zbędnego ich przeciążania.
+
+
+
+##### SOURCE END #####
+--></body></html>

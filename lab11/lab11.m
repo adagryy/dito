@@ -8,7 +8,7 @@ n = 12; % total number of nodes
 m = 18; % number of edges (transmission lines)
 k = 4; % number of generators
 rand('state',0);
-Pmax = 1+4*rand(m,1); % transmission line capacities
+Pmax = 1+4*rand(m,1)*1.208; % transmission line capacities
 % Pmax(18,1)=0;
 Gmax = [3; 2; 4; 7];  % maximum generator power
 c    = [4; 8; 5; 3];  % supply generator costs
@@ -75,29 +75,60 @@ axis off; hold off;
 % Podpunkt 1
 
 cvx_begin quiet
-    variable g(4,1) % ca³kowita moc WSZYSTKICH generatorów 
+    variables g(4,1) p(m,1) % ca³kowita moc WSZYSTKICH generatorów 
     minimize (c'*g) % koszt generowania mocy
     subject to
         g>=0 % ka¿dy generator generuje pr¹d (dodatnio) a nie go pobiera (ujemnie)
         abs(Gmax)>= g % Ka¿dy generator produkuje moc mniejsz¹ od swojej w³asnej mocy maksymalnej
         sum(g)==sum(d) % Suma mocy generowanych jest równa sumie mocy zu¿ytych
+        A*p == [-g;d] % Zbalansowane mocy na ka¿dym wêŸle
 cvx_end;
-disp('Podpunkt 1:')
+disp('Podpunkt - koszt optymalny 1:')
 c'*g
+
+disp('Macierz kosztów generacji:')
+c
+
+disp('Macierz mocy generatorów:')
+g
+
+disp('Macierz mocy przep³ywaj¹cych przez poszczególne wêz³y:')
+p
 
 % Podpunkt 2
 
-% Tu wynik wychodzi dobry, ale chyba z³a droga dojœcia
 cvx_begin quiet
-    variables p(m, 1) g(k, 1)
-    minimize(c'*g)
-    subject to
-        sum(g) == sum(d)
-        p(3) == 0 % Od³¹czam trzeci¹ liniê
-        abs(Pmax) <= p 
-        Gmax <= g 
-cvx_end
-disp('Podpunkt 2:')
+    variables p(m,m) g(4,1)
+    minimize (c'*g) % Koszt generowania mocy
+    subject to        
+        g>=0  % ka¿dy generator generuje pr¹d (dodatnio) a nie go pobiera 
+        Gmax>= g  % Ka¿dy generator produkuje moc mniejsz¹ od swojej w³asnej mocy maksymalnej
+        sum(g)==sum(d) % Suma mocy generowanych jest równa sumie mocy zu¿ytych        
+        for i = 1:m
+            p(i,i)==0 % odciêcie danej magistrali
+            A*p(:,i) == [-g;d] % Zbalansowane mocy na ka¿dym wêŸle
+            abs(p(:,i))<=Pmax  % Odciêcie linii zachowuje wymagany przedzia³ mocy
+        end
+cvx_end;
+
+disp('Podpunkt - koszt optymalny 1:')
 c'*g
+
+disp('Macierz kosztów generacji:')
+c
+
+disp('Macierz mocy generatorów:')
+g
+
+disp('Macierz mocy przep³ywaj¹cych przez poszczególne wêz³y:')
+p
+
+%% Konkluzje
+% Odciêcie dowolnej linii zwiêksza ogólny koszt przesy³u energii pomiêdzy
+% wêz³ami, co jest zgodne ze zdrowym rozs¹dkiem. W zadaniu optymalizacji
+% nie zostaj¹zaburzone krytyczne warunki dzia³ania sieci, takie jak
+% maksymalna moc generatora, czy maksymalna moc przesy³ana na danej linii.
+% Takie rozwi¹zanie pozwala zastosowaæ optymalne tryby dzia³ania
+% komponentów sieci bez zbêdnego ich przeci¹¿ania.
 
 
