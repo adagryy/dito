@@ -519,9 +519,7 @@ tau_max = [...
    156.5266   
    157.6903   
 ];
-
-
-d1 = d
+d1 = d;
 
 for i = 2:100
     d1(i) = d1(i-1) + d(i);
@@ -539,11 +537,26 @@ plot(d1, smin)
 plot(d1, smax)
 hold off
 
-% for i = 1 : 100
-%     cvx_begin quiet
-%         variable t
-%         minimize t*(a*si^2+b*si+c)
-%         subject to
-%             
-%     cvx_end
-% end
+cvx_clear;
+
+cvx_begin quiet
+    variable tau(n) 
+    minimize sum(a*d.^2.*inv_pos(tau) + b*d + c*tau)
+        % Ograniczenia wynikaj¹ce z przedzia³u prêdkoœci
+        tau <= d./smin 
+        tau >= d./smax 
+        
+        tau_min <= cumsum(tau)      
+        tau_max >= cumsum(tau)        
+cvx_end
+
+s=d./tau % prêdkoœæ to druga przez czas
+
+% Prezentacja wyników
+figure(1);
+stairs(s);
+grid on;
+
+hold on;
+stairs(smin);
+stairs(smax);
