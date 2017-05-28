@@ -525,12 +525,14 @@ for i = 2:100
     d1(i) = d1(i-1) + d(i);
 end
 
+%% 
 figure(1)
 hold on
 plot(tau_min, d1)
 plot(tau_max, d1)
 hold off
 
+%% 
 figure(2)
 hold on
 plot(d1, smin)
@@ -546,17 +548,29 @@ cvx_begin quiet
         tau <= d./smin 
         tau >= d./smax 
         
+        % Oraz czasu
         tau_min <= cumsum(tau)      
         tau_max >= cumsum(tau)        
 cvx_end
 
-s=d./tau % prêdkoœæ to druga przez czas
+s=d./tau % prêdkoœæ to droga przez czas
 
-% Prezentacja wyników
-figure(1);
-stairs(s);
-grid on;
+%% 
+figure(3);
+
+stairs(s), grid on;
 
 hold on;
 stairs(smin);
+
 stairs(smax);
+
+tau_min
+tau_max
+
+%% Wnioski
+% Funkcja celu jest to funkcja dwóch zmiennych i nie jest wypuk³a. Wynika to z faktu, i¿
+% funkcja (a*d.^2.*(tau) + b*d + c*tau) posiada drug¹ pochodn¹ cz¹stkow¹ 
+% równ¹ zero, co prowadzi do wniosku, i¿ funkcja ta nie posiada punktów
+% przegiêcia i tym samym nie jest wypuk³a (podobnie, jak w
+% przypadku zwyk³ej funkcji liniowej).
